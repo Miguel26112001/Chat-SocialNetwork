@@ -1,4 +1,4 @@
-package com.my.enterprise.chat_backend.identity.application.commandservices;
+package com.my.enterprise.chat_backend.identity.application.helpers;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -10,7 +10,7 @@ import java.util.Base64;
  * Se usa para el refresh token en texto plano; de él solo se
  * persistirá el hash.
  */
-final class Tokens {
+public final class Tokens {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
@@ -18,7 +18,7 @@ final class Tokens {
     private Tokens() {
     }
 
-    static String newRawRefreshToken() {
+    public static String newRawRefreshToken() {
         byte[] bytes = new byte[32];
         SECURE_RANDOM.nextBytes(bytes);
         return ENCODER.encodeToString(bytes);

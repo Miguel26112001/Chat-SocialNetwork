@@ -1,5 +1,6 @@
 package com.my.enterprise.chat_backend.identity.application.commandservices;
 
+import com.my.enterprise.chat_backend.identity.application.helpers.TokenPairIssuer;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.Clock;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.PasswordHasher;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.RefreshTokenRepository;

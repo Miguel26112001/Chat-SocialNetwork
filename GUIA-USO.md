@@ -214,6 +214,8 @@ Una cuenta desactivada no puede hacer login (**401**).
 | POST   | `/me/password`       | Cambiar mi contraseña                | 204   |
 | POST   | `/me/deactivate`     | Desactivar mi cuenta + revocar mis sesiones | 204   |
 | POST   | `/me/activate`       | Reactivar mi cuenta                        | 204   |
+| POST   | `/{id}/promote`      | Promover cuenta a ADMIN (solo ADMIN)       | 204   |
+| POST   | `/{id}/demote`       | Degradar cuenta a USER (solo ADMIN)        | 204   |
 
 ### Códigos de error (formato `ErrorResponse`: `timestamp`, `status`, `error`, `message`, `path`)
 

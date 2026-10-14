@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -14,14 +15,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Filtro de autenticación JWT.
  *
  * Lee la cabecera {@code Authorization: Bearer <token>}, valida el
  * token con el puerto {@link TokenService} y, si es válido, deja en
- * el SecurityContext al usuario autenticado (el id como principal).
+ * el SecurityContext al usuario autenticado (el id como principal)
+ * con su authority ({@code ROLE_USER} o {@code ROLE_ADMIN} según el
+ * claim {@code role}).
  *
  * Un token inválido NO produce un 401 aquí: simplemente no autentica
  * y la petición sigue su camino; la decisión de autorización la toma
@@ -47,9 +49,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = header.substring(BEARER_PREFIX.length());
             try {
-                UUID userId = tokenService.parseUserId(token);
+                TokenService.AccessTokenClaims claims = tokenService.parseClaims(token);
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, List.of());
+                        new UsernamePasswordAuthenticationToken(
+                                claims.userId(),
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_" + claims.role().name())));
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (InvalidCredentialsException ex) {

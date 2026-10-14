@@ -1,5 +1,6 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.resources;
 
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -24,6 +25,9 @@ public record UserResource(
 
         @Schema(description = "Si la cuenta está activa", example = "true")
         boolean active,
+
+        @Schema(description = "Rol de la cuenta", example = "USER")
+        UserRole role,
 
         @Schema(description = "Fecha de creación")
         Instant createdAt,

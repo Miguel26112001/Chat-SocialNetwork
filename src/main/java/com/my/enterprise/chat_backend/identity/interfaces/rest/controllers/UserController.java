@@ -5,6 +5,8 @@ import com.my.enterprise.chat_backend.identity.interfaces.rest.transform.UserTra
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.DemoteUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.PromoteUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetMyAccountQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
@@ -159,6 +161,42 @@ public class UserController {
     @PostMapping("/me/activate")
     public ResponseEntity<Void> activate() {
         userCommandService.activate(new ActivateUserCommand(UserPrincipal.current()));
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Promover una cuenta a ADMIN",
+            description = "Solo ADMIN (verificado en el JWT y revalidado en BD). "
+                    + "Nadie puede cambiar su propio rol.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta promovida"),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Sin privilegios de administrador",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{id}/promote")
+    public ResponseEntity<Void> promote(@PathVariable UUID id) {
+        userCommandService.promote(new PromoteUserCommand(id, UserPrincipal.current()));
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Degradar una cuenta ADMIN a USER",
+            description = "Solo ADMIN (verificado en el JWT y revalidado en BD). "
+                    + "Nadie puede cambiar su propio rol.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta degradada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Sin privilegios de administrador",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{id}/demote")
+    public ResponseEntity<Void> demote(@PathVariable UUID id) {
+        userCommandService.demote(new DemoteUserCommand(id, UserPrincipal.current()));
         return ResponseEntity.noContent().build();
     }
 }

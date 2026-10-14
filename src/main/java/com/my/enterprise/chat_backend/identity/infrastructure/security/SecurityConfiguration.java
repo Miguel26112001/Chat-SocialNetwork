@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -50,6 +51,16 @@ public class SecurityConfiguration {
             "/swagger-ui/**"
     };
 
+    /**
+     * Solo ADMIN (según el claim {@code role} del JWT). La capa de
+     * servicio revalida además contra la BD fresca ({@code requireAdmin}),
+     * así un token con rol obsoleto no ejecuta nada.
+     */
+    private static final String[] ADMIN_PATHS = {
+            "/api/v1/users/*/promote",
+            "/api/v1/users/*/demote"
+    };
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
 
@@ -69,6 +80,7 @@ public class SecurityConfiguration {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.POST, ADMIN_PATHS).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->

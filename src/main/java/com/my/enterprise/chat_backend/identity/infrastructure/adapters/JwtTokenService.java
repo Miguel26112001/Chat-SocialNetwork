@@ -3,6 +3,7 @@ package com.my.enterprise.chat_backend.identity.infrastructure.adapters;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.TokenService;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidCredentialsException;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -57,6 +58,7 @@ public class JwtTokenService implements TokenService {
 
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
                 .subject(user.getId().toString())
+                .claim("role", user.getRole().name())
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(expiresAt))
                 .build();
@@ -72,7 +74,7 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public UUID parseUserId(String accessToken) {
+    public AccessTokenClaims parseClaims(String accessToken) {
         try {
             SignedJWT jwt = SignedJWT.parse(accessToken);
             if (!jwt.verify(new MACVerifier(key))) {
@@ -83,7 +85,9 @@ public class JwtTokenService implements TokenService {
             if (expiration == null || expiration.before(Date.from(Instant.now()))) {
                 throw new InvalidCredentialsException();
             }
-            return UUID.fromString(claims.getSubject());
+            UUID userId = UUID.fromString(claims.getSubject());
+            UserRole role = UserRole.valueOf(claims.getStringClaim("role"));
+            return new AccessTokenClaims(userId, role);
         } catch (InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {

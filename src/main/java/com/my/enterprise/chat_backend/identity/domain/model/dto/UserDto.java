@@ -1,6 +1,7 @@
 package com.my.enterprise.chat_backend.identity.domain.model.dto;
 
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,6 +19,7 @@ public record UserDto(
         String username,
         String email,
         boolean active,
+        UserRole role,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -27,6 +29,7 @@ public record UserDto(
                 user.getUsername().value(),
                 user.getEmail().value(),
                 user.isActive(),
+                user.getRole(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
     }

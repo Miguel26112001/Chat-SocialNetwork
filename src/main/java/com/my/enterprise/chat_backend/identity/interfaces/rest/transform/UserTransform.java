@@ -19,6 +19,7 @@ public final class UserTransform {
                 dto.username(),
                 dto.email(),
                 dto.active(),
+                dto.role(),
                 dto.createdAt(),
                 dto.updatedAt());
     }

@@ -5,6 +5,7 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.LoginComman
 import com.my.enterprise.chat_backend.identity.domain.model.commands.LogoutCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RefreshSessionCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.queries.GetActiveSessionsQuery;
 import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenCommandService;
 import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenQueryService;
 import com.my.enterprise.chat_backend.identity.domain.services.UserCommandService;
@@ -35,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -135,7 +135,8 @@ public class AuthController {
     @GetMapping("/sessions")
     public ResponseEntity<List<SessionResource>> sessions() {
         UUID userId = UserPrincipal.current();
-        List<SessionResource> sessions = refreshTokenQueryService.findActiveSessions(userId, Instant.now()).stream()
+        List<SessionResource> sessions = refreshTokenQueryService
+                .findActiveSessions(new GetActiveSessionsQuery(userId)).stream()
                 .map(SessionResource::from)
                 .toList();
         return ResponseEntity.ok(sessions);

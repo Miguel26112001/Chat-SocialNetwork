@@ -4,6 +4,7 @@ import com.my.enterprise.chat_backend.identity.application.outboundservices.port
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundException;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
+import com.my.enterprise.chat_backend.identity.domain.model.queries.GetMyAccountQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByUsernameQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
@@ -49,5 +50,13 @@ public class UserQueryServiceImpl implements UserQueryService {
     public User findUserByEmail(FindUserByEmailQuery query) {
         return userRepository.findByEmail(new Email(query.email()))
                 .orElseThrow(() -> new UserNotFoundException(query.email()));
+    }
+
+    /** Obtiene la cuenta propia del usuario autenticado. */
+    @Override
+    @Transactional(readOnly = true)
+    public User getMyAccount(GetMyAccountQuery query) {
+        return userRepository.findById(query.userId())
+                .orElseThrow(() -> new UserNotFoundException(query.userId()));
     }
 }

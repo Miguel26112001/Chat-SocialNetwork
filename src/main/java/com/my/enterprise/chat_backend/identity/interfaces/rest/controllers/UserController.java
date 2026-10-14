@@ -5,6 +5,7 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUse
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
+import com.my.enterprise.chat_backend.identity.domain.model.queries.GetMyAccountQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByUsernameQuery;
 import com.my.enterprise.chat_backend.identity.domain.services.UserCommandService;
@@ -58,7 +59,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResource> me() {
         UUID userId = UserPrincipal.current();
-        return ResponseEntity.ok(UserResource.from(userQueryService.getUserById(new GetUserByIdQuery(userId))));
+        return ResponseEntity.ok(UserResource.from(userQueryService.getMyAccount(new GetMyAccountQuery(userId))));
     }
 
     @Operation(summary = "Obtener una cuenta por id")

@@ -2,6 +2,7 @@ package com.my.enterprise.chat_backend.identity.domain.services;
 
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
+import com.my.enterprise.chat_backend.identity.domain.model.queries.GetMyAccountQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByUsernameQuery;
 
@@ -24,4 +25,7 @@ public interface UserQueryService {
 
     /** Obtiene una cuenta por correo exacto (normalizado a minúsculas). */
     User findUserByEmail(FindUserByEmailQuery query);
+
+    /** Obtiene la cuenta propia del usuario autenticado. */
+    User getMyAccount(GetMyAccountQuery query);
 }

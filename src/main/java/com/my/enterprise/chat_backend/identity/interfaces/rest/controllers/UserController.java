@@ -129,8 +129,10 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Desactivar una cuenta",
-            description = "Soft delete (is_active = false) y revocación de todas sus sesiones.")
+    @Operation(summary = "Desactivar mi cuenta",
+            description = "Soft delete de la propia cuenta (is_active = false) y revocación de "
+                    + "todas sus sesiones. Por seguridad solo opera sobre la cuenta del token: "
+                    + "nadie puede desactivar cuentas ajenas.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cuenta desactivada"),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
@@ -138,13 +140,15 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
-        userCommandService.deactivate(new DeactivateUserCommand(id));
+    @PostMapping("/me/deactivate")
+    public ResponseEntity<Void> deactivate() {
+        userCommandService.deactivate(new DeactivateUserCommand(UserPrincipal.current()));
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Reactivar una cuenta desactivada")
+    @Operation(summary = "Reactivar mi cuenta",
+            description = "Reactiva la propia cuenta desactivada. Solo funciona mientras el JWT "
+                    + "siga vigente (las sesiones se revocan al desactivar).")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cuenta reactivada"),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
@@ -152,9 +156,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/{id}/activate")
-    public ResponseEntity<Void> activate(@PathVariable UUID id) {
-        userCommandService.activate(new ActivateUserCommand(id));
+    @PostMapping("/me/activate")
+    public ResponseEntity<Void> activate() {
+        userCommandService.activate(new ActivateUserCommand(UserPrincipal.current()));
         return ResponseEntity.noContent().build();
     }
 }

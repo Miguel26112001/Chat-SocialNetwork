@@ -10,7 +10,7 @@ import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 
 /**
  * Emisor compartido de pares de tokens (access + refresh).
- *
+ * <p>
  * Lo usan los command services que emiten sesiones
  * ({@code LoginService}, {@code RefreshSessionService}).
  * Genera el refresh token con entropía criptográfica (256 bits),

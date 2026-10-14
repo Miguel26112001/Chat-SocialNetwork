@@ -7,11 +7,11 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.RefreshSess
 
 /**
  * Contrato de los comandos (lado WRITE, CQRS) del agregado RefreshToken.
- *
+ * <p>
  * El ciclo de vida de las sesiones vive aquí, no en
  * {@link UserCommandService}: login emite un refresh token, logout lo
  * revoca y refreshSession lo rota.
- *
+ * <p>
  * Interfaz en la capa de dominio; la implementación vive en la capa
  * de aplicación (application.commandservices).
  */

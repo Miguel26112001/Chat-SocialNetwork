@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementación de {@link UserQueryService} (agregado User).
- *
+ * <p>
  * Devuelve agregados de dominio; la capa de interfaces los transforma
  * a DTOs/resources. Solo lectura: no muta estado ni publica eventos.
  */

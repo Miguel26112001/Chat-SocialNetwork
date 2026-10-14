@@ -5,7 +5,7 @@ import java.util.Base64;
 
 /**
  * Generador de tokens criptográficamente seguros (JDK puro).
- *
+ * <p>
  * 32 bytes de entropía → Base64 URL sin padding (~43 caracteres).
  * Se usa para el refresh token en texto plano; de él solo se
  * persistirá el hash.

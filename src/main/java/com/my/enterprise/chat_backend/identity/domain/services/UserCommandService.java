@@ -8,11 +8,11 @@ import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 
 /**
  * Contrato de los comandos (lado WRITE, CQRS) del agregado User.
- *
+ * <p>
  * Interfaz en la capa de dominio: define QUÉ puede hacerse con una
  * cuenta, sin CÓMO. La implementación vive en la capa de aplicación
  * (application.commandservices) y orquesta puertos outbound.
- *
+ * <p>
  * Solo operaciones sobre el agregado User. El ciclo de vida de las
  * sesiones (login/logout/renovación) pertenece a
  * {@link RefreshTokenCommandService}.

@@ -8,7 +8,6 @@ import com.my.enterprise.chat_backend.identity.domain.exceptions.EmailAlreadyExi
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidCredentialsException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UsernameAlreadyExistsException;
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.RefreshToken;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
@@ -25,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementación de {@link UserCommandService} (agregado User).
- *
+ * <p>
  * Orquestación de las escrituras sobre la cuenta:
  *  - unicidad de username/email contra el repositorio (invariante de
  *    contexto, no del agregado);
@@ -34,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
  *  - los eventos de los agregados los publica automáticamente Spring
  *    Data al llamar a save(); los consumidores deben usar
  *    {@code @TransactionalEventListener(phase = AFTER_COMMIT)}.
- *
+ * <p>
  * Como servicio de aplicación, orquesta también al agregado
  * RefreshToken cuando una operación lo requiere (p. ej. al
  * desactivar una cuenta se revocan todas sus sesiones).
@@ -114,7 +113,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      * Desactiva la cuenta (soft delete de users.is_active) y revoca
      * TODAS sus sesiones: una cuenta desactivada no debe seguir
      * emitiendo tokens nuevos.
-     *
+     * <p>
      * El agregado User publica UserDeactivatedEvent; Social Graph y
      * Engagement reaccionarán para suspender su actividad.
      */

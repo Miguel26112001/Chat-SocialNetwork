@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /**
  * DTO de dominio: proyección inmutable de una cuenta.
- *
+ * <p>
  * Es lo que devuelven los servicios de aplicación en lugar del
  * agregado: el agregado User nunca cruza la frontera de la capa
  * de aplicación. La capa de interfaces lo transforma a

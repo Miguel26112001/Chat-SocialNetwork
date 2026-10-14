@@ -4,9 +4,11 @@ import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.ErrorRe
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,14 +24,14 @@ import java.util.List;
 
 /**
  * Configuración de seguridad del contexto Identity.
- *
+ * <p>
  * - Sesión sin estado (stateless): toda la información de
  *   autenticación viaja en el JWT.
  * - CSRF desactivado: no hay cookies de sesión.
  * - Rutas públicas: registro, login y renovación de sesión (el cliente
  *   aún no tiene tokens válidos).
  * - El resto requieren autenticación JWT.
- *
+ * <p>
  * Nota de arquitectura: vive en identity (no en shared) porque usa
  * el puerto TokenService del propio contexto; shared no debe depender
  * de los contextos.
@@ -57,12 +59,12 @@ public class SecurityConfiguration {
         this.objectMapper = objectMapper;
     }
 
-    @org.springframework.context.annotation.Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> {
                 })
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -84,7 +86,7 @@ public class SecurityConfiguration {
      * Spring Security usa automáticamente este bean al estar
      * habilitado {@code cors()} en el filter chain.
      */
-    @org.springframework.context.annotation.Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource(
             @Value("${app.cors.allowed-origins}") List<String> allowedOrigins) {
         CorsConfiguration config = new CorsConfiguration();

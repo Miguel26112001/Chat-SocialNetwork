@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Implementación de {@link RefreshTokenQueryService}
  * (agregado RefreshToken).
- *
+ * <p>
  * Alimenta el caso de uso "mis dispositivos / sesiones activas".
  */
 @Service

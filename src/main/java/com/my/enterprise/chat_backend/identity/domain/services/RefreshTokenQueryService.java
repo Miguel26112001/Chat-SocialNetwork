@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Contrato de las consultas (lado READ, CQRS) del agregado RefreshToken.
- *
+ * <p>
  * Interfaz en la capa de dominio; la implementación vive en la capa
  * de aplicación (application.queryservices).
  */

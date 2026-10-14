@@ -8,11 +8,11 @@ import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByUse
 
 /**
  * Contrato de las consultas (lado READ, CQRS) del agregado User.
- *
+ * <p>
  * Interfaz en la capa de dominio. La implementación vive en la capa
  * de aplicación (application.queryservices) y devuelve agregados de
  * dominio; la capa de interfaces los transforma a DTOs/resources.
- *
+ * <p>
  * Solo lectura: no muta estado ni publica eventos.
  */
 public interface UserQueryService {

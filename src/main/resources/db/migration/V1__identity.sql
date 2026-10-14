@@ -54,10 +54,16 @@ CREATE TABLE identity.refresh_tokens (
     expires_at TIMESTAMPTZ  NOT NULL,
     revoked_at TIMESTAMPTZ  NULL,
     created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT uq_identity_refresh_tokens_hash UNIQUE (token_hash),
     CONSTRAINT fk_identity_refresh_tokens_user
         FOREIGN KEY (user_id) REFERENCES identity.users (id) ON DELETE CASCADE
 );
+
+CREATE TRIGGER trg_identity_refresh_tokens_updated_at
+    BEFORE UPDATE ON identity.refresh_tokens
+    FOR EACH ROW
+    EXECUTE FUNCTION identity.set_updated_at();
 
 CREATE INDEX ix_identity_refresh_tokens_user   ON identity.refresh_tokens (user_id);
 -- Sesiones activas de un usuario (excluye revocados): uso frecuente.

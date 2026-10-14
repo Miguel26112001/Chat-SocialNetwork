@@ -54,6 +54,14 @@ security:
     access-token-ttl: 15m
 
 # --------------------------------------------------------------------
+# CORS: orígenes del frontend (coma separada en prod con la variable
+# CORS_ALLOWED_ORIGINS). Debe coincidir con el dev server de Vite.
+# --------------------------------------------------------------------
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+# --------------------------------------------------------------------
 # OpenAPI / Swagger UI (springdoc). Consola en /swagger-ui.html y
 # documento JSON en /v3/api-docs.
 # --------------------------------------------------------------------

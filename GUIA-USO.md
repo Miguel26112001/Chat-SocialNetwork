@@ -210,6 +210,7 @@ Una cuenta desactivada no puede hacer login (**401**).
 | GET    | `/me`                | Mi cuenta                            | 200   |
 | GET    | `/{id}`              | Cuenta por id                        | 200   |
 | GET    | `/username/{username}` | Cuenta por username exacto         | 200   |
+| GET    | `/email/{email}` | Cuenta por correo exacto               | 200   |
 | POST   | `/me/password`       | Cambiar mi contraseña                | 204   |
 | POST   | `/{id}/deactivate`   | Desactivar cuenta + revocar sesiones | 204   |
 | POST   | `/{id}/activate`     | Reactivar cuenta                     | 204   |

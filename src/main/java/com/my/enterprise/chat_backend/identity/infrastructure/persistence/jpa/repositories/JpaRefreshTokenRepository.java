@@ -32,7 +32,7 @@ public class JpaRefreshTokenRepository implements RefreshTokenRepository {
     }
 
     @Override
-    public RefreshToken save(RefreshToken token) {
-        return jpaRepository.save(token);
+    public void save(RefreshToken token) {
+        jpaRepository.save(token);
     }
 }

@@ -1,8 +1,5 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.controllers;
 
-import com.my.enterprise.chat_backend.identity.application.dto.SessionDto;
-import com.my.enterprise.chat_backend.identity.application.dto.UserDto;
-import com.my.enterprise.chat_backend.identity.domain.model.AuthTokens;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.LoginCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.LogoutCommand;
@@ -12,13 +9,17 @@ import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenComma
 import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenQueryService;
 import com.my.enterprise.chat_backend.identity.domain.services.UserCommandService;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.UserPrincipal;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.AuthTokensResource;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.ErrorResponse;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.LoginRequest;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.LogoutRequest;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.RefreshRequest;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.RegisterRequest;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.SessionResource;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.UserResource;
 import com.my.enterprise.chat_backend.shared.infrastructure.documentation.openapi.configuration.OpenApiConfiguration;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -59,17 +60,17 @@ public class AuthController {
             description = "Crea un usuario nuevo. No requiere autenticación.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Cuenta creada",
-                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserResource.class))),
             @ApiResponse(responseCode = "400", description = "Datos inválidos",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "Username o email ya registrados",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResource> register(@Valid @RequestBody RegisterRequest request) {
         User user = userCommandService.register(new RegisterUserCommand(
                 request.username(), request.email(), request.password()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserDto.from(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResource.from(user));
     }
 
     @Operation(summary = "Iniciar sesión",
@@ -77,16 +78,17 @@ public class AuthController {
                     + "(access JWT de corta duración + refresh token). No requiere autenticación.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sesión iniciada, par de tokens emitido",
-                    content = @Content(schema = @Schema(implementation = AuthTokens.class))),
+                    content = @Content(schema = @Schema(implementation = AuthTokensResource.class))),
             @ApiResponse(responseCode = "400", description = "Petición inválida",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "Credenciales inválidas",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public AuthTokens login(@Valid @RequestBody LoginRequest request) {
-        return refreshTokenCommandService.login(new LoginCommand(
-                request.usernameOrEmail(), request.password()));
+    public ResponseEntity<AuthTokensResource> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(AuthTokensResource.from(
+                refreshTokenCommandService.login(new LoginCommand(
+                        request.usernameOrEmail(), request.password()))));
     }
 
     @Operation(summary = "Cerrar sesión en este dispositivo",
@@ -109,30 +111,33 @@ public class AuthController {
                     + "el token usado queda revocado). No requiere autenticación.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Par de tokens nuevo emitido",
-                    content = @Content(schema = @Schema(implementation = AuthTokens.class))),
+                    content = @Content(schema = @Schema(implementation = AuthTokensResource.class))),
             @ApiResponse(responseCode = "401", description = "Refresh token inválido, expirado o revocado",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/refresh")
-    public AuthTokens refresh(@Valid @RequestBody RefreshRequest request) {
-        return refreshTokenCommandService.refreshSession(new RefreshSessionCommand(
-                request.refreshToken()));
+    public ResponseEntity<AuthTokensResource> refresh(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(AuthTokensResource.from(
+                refreshTokenCommandService.refreshSession(new RefreshSessionCommand(
+                        request.refreshToken()))));
     }
 
     @Operation(summary = "Listar mis sesiones activas",
             description = "Devuelve los refresh tokens vigentes del usuario autenticado "
                     + "('mis dispositivos'). Requiere JWT.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de sesiones activas"),
+            @ApiResponse(responseCode = "200", description = "Lista de sesiones activas",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = SessionResource.class)))),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @SecurityRequirement(name = OpenApiConfiguration.BEARER_AUTH)
     @GetMapping("/sessions")
-    public List<SessionDto> sessions() {
+    public ResponseEntity<List<SessionResource>> sessions() {
         UUID userId = UserPrincipal.current();
-        return refreshTokenQueryService.findActiveSessions(userId, Instant.now()).stream()
-                .map(SessionDto::from)
+        List<SessionResource> sessions = refreshTokenQueryService.findActiveSessions(userId, Instant.now()).stream()
+                .map(SessionResource::from)
                 .toList();
+        return ResponseEntity.ok(sessions);
     }
 }

@@ -1,9 +1,10 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.controllers;
 
-import com.my.enterprise.chat_backend.identity.application.dto.UserDto;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.UserResource;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByUsernameQuery;
 import com.my.enterprise.chat_backend.identity.domain.services.UserCommandService;
@@ -48,44 +49,60 @@ public class UserController {
     @Operation(summary = "Obtener mi cuenta", description = "Devuelve la cuenta del usuario autenticado.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
-                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserResource.class))),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/me")
-    public UserDto me() {
+    public ResponseEntity<UserResource> me() {
         UUID userId = UserPrincipal.current();
-        return UserDto.from(userQueryService.getUserById(new GetUserByIdQuery(userId)));
+        return ResponseEntity.ok(UserResource.from(userQueryService.getUserById(new GetUserByIdQuery(userId))));
     }
 
     @Operation(summary = "Obtener una cuenta por id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
-                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserResource.class))),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
-    public UserDto getById(@PathVariable UUID id) {
-        return UserDto.from(userQueryService.getUserById(new GetUserByIdQuery(id)));
+    public ResponseEntity<UserResource> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(UserResource.from(userQueryService.getUserById(new GetUserByIdQuery(id))));
     }
 
     @Operation(summary = "Obtener una cuenta por username exacto")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
-                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+                    content = @Content(schema = @Schema(implementation = UserResource.class))),
             @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/username/{username}")
-    public UserDto getByUsername(@PathVariable String username) {
-        return UserDto.from(userQueryService.getUserByUsername(new GetUserByUsernameQuery(username)));
+    public ResponseEntity<UserResource> getByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(UserResource.from(userQueryService.getUserByUsername(new GetUserByUsernameQuery(username))));
+    }
+
+    @Operation(summary = "Obtener una cuenta por correo exacto")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
+                    content = @Content(schema = @Schema(implementation = UserResource.class))),
+            @ApiResponse(responseCode = "400", description = "Correo con formato inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResource> getByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(UserResource.from(userQueryService.findUserByEmail(new FindUserByEmailQuery(email))));
     }
 
     @Operation(summary = "Cambiar mi contraseña",

@@ -17,5 +17,5 @@ public interface RefreshTokenRepository {
     /** Sesiones vigentes (no revocadas y no expiradas) de un usuario. */
     List<RefreshToken> findActiveByUserId(UUID userId, Instant now);
 
-    RefreshToken save(RefreshToken token);
+    void save(RefreshToken token);
 }

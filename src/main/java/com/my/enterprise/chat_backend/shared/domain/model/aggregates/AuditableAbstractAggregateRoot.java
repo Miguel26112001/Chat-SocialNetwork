@@ -2,6 +2,7 @@ package com.my.enterprise.chat_backend.shared.domain.model.aggregates;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.time.Instant;
  *
  * @param <S> el agregado concreto que extiende esta clase
  */
+@Getter
 @MappedSuperclass
 public abstract class AuditableAbstractAggregateRoot<S extends AuditableAbstractAggregateRoot<S>>
         extends AbstractAggregateRoot<S> {
@@ -44,15 +46,7 @@ public abstract class AuditableAbstractAggregateRoot<S extends AuditableAbstract
         this.updatedAt = updatedAt;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    /**
+  /**
      * Marca el nacimiento del agregado. Solo debe llamarse una vez,
      * desde la fábrica estática del agregado.
      */

@@ -2,6 +2,7 @@ package com.my.enterprise.chat_backend.shared.domain.model.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
 
 import java.time.Instant;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
  * {@code AuditableAbstractAggregateRoot} para mantener una
  * única convención en todo el sistema.
  */
+@Getter
 @MappedSuperclass
 public abstract class AuditableModel {
 
@@ -30,15 +32,7 @@ public abstract class AuditableModel {
         this.updatedAt = updatedAt;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    protected void markCreated(Instant now) {
+  protected void markCreated(Instant now) {
         this.createdAt = now;
         this.updatedAt = now;
     }

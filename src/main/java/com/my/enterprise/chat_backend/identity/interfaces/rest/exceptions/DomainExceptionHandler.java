@@ -132,7 +132,7 @@ public class DomainExceptionHandler {
     /** Excepciones desconocidas: 500 sin detalles internos. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> unhandled(
-            Exception ex, HttpServletRequest request) {
+            HttpServletRequest request) {
         ErrorResponse body = ErrorResponse.of(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),

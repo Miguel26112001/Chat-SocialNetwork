@@ -2,6 +2,7 @@ package com.my.enterprise.chat_backend.identity.interfaces.rest.exceptions;
 
 import com.my.enterprise.chat_backend.identity.domain.exceptions.DomainException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.EmailAlreadyExistsException;
+import com.my.enterprise.chat_backend.identity.domain.exceptions.ForbiddenException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InactiveUserException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidCredentialsException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidEmailException;
@@ -36,6 +37,12 @@ public class DomainExceptionHandler {
     @ExceptionHandler(InactiveUserException.class)
     public ResponseEntity<ErrorResponse> inactiveUser(
             InactiveUserException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, ex, request);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> forbidden(
+            ForbiddenException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, ex, request);
     }
 

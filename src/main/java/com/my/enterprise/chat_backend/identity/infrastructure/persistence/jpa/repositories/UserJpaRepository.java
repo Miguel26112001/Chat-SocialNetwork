@@ -1,6 +1,7 @@
 package com.my.enterprise.chat_backend.identity.infrastructure.persistence.jpa.repositories;
 
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,7 @@ public interface UserJpaRepository extends JpaRepository<User, UUID> {
 
     @Query("select count(u) > 0 from User u where u.email.value = :email")
     boolean existsByEmail(@Param("email") String email);
+
+    @Query("select count(u) > 0 from User u where u.role = :role")
+    boolean existsByRole(@Param("role") UserRole role);
 }

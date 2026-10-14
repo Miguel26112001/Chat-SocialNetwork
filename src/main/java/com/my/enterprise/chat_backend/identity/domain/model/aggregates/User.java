@@ -4,14 +4,18 @@ import com.my.enterprise.chat_backend.identity.domain.exceptions.InactiveUserExc
 import com.my.enterprise.chat_backend.identity.domain.model.events.PasswordChangedEvent;
 import com.my.enterprise.chat_backend.identity.domain.model.events.UserDeactivatedEvent;
 import com.my.enterprise.chat_backend.identity.domain.model.events.UserRegisteredEvent;
+import com.my.enterprise.chat_backend.identity.domain.model.events.UserRoleChangedEvent;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.PasswordHash;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Username;
 import com.my.enterprise.chat_backend.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -34,6 +38,7 @@ import java.util.UUID;
  *
  * Invariantes que este agregado protege:
  *  - el username y el correo cumplen su formato (garantizado por los VOs);
+ *  - toda cuenta nace como USER; el rol solo cambia por promoción/degradación explícita;
  *  - solo la propia cuenta puede cambiar su contraseña;
  *  - una cuenta desactivada no puede autenticarse.
  */
@@ -69,6 +74,10 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private UserRole role;
+
     protected User() {
         // Requerido por JPA; los atributos los rehidrata Hibernate.
     }
@@ -79,11 +88,14 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.email = email;
         this.passwordHash = passwordHash;
         this.active = true;
+        this.role = UserRole.USER;
         markCreated(now);
     }
 
     /**
      * Fábrica de registro. Única forma de crear un User.
+     * Toda cuenta nace como {@link UserRole#USER}; la promoción a ADMIN
+     * es una operación explícita posterior ({@link #promoteToAdmin}).
      * Publica {@link UserRegisteredEvent} para que otros contextos
      * (p. ej. User Profile) creen su perfil de forma asíncrona.
      */
@@ -122,6 +134,37 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         }
         this.active = true;
         touch(now);
+    }
+
+    /**
+     * Promueve la cuenta a ADMIN. Idempotente.
+     * Publica {@link UserRoleChangedEvent} para auditoría.
+     */
+    public void promoteToAdmin(Instant now) {
+        if (this.role == UserRole.ADMIN) {
+            return;
+        }
+        this.role = UserRole.ADMIN;
+        touch(now);
+        registerEvent(new UserRoleChangedEvent(this.id, this.role, now));
+    }
+
+    /**
+     * Degrada la cuenta a USER común. Idempotente.
+     * Publica {@link UserRoleChangedEvent} para auditoría.
+     */
+    public void demoteToUser(Instant now) {
+        if (this.role == UserRole.USER) {
+            return;
+        }
+        this.role = UserRole.USER;
+        touch(now);
+        registerEvent(new UserRoleChangedEvent(this.id, this.role, now));
+    }
+
+    /** Atajo de lectura para las reglas de autorización. */
+    public boolean isAdmin() {
+        return role.isAdmin();
     }
 
     /**

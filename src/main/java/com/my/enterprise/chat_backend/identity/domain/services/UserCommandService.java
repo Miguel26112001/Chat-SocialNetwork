@@ -3,6 +3,8 @@ package com.my.enterprise.chat_backend.identity.domain.services;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.DemoteUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.PromoteUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 
@@ -30,4 +32,16 @@ public interface UserCommandService {
 
     /** Reactiva una cuenta desactivada. */
     void activate(ActivateUserCommand command);
+
+    /**
+     * Promueve una cuenta a ADMIN. Solo un admin puede promover.
+     * Nadie puede cambiar su propio rol.
+     */
+    void promote(PromoteUserCommand command);
+
+    /**
+     * Degrada una cuenta ADMIN a USER común. Solo un admin puede degradar.
+     * Nadie puede cambiar su propio rol.
+     */
+    void demote(DemoteUserCommand command);
 }

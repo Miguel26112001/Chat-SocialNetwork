@@ -3,6 +3,7 @@ package com.my.enterprise.chat_backend.identity.infrastructure.persistence.jpa.r
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.UserRepository;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Username;
 import org.springframework.stereotype.Repository;
 
@@ -47,6 +48,11 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public boolean existsByEmail(Email email) {
         return jpaRepository.existsByEmail(email.value());
+    }
+
+    @Override
+    public boolean existsByRole(UserRole role) {
+        return jpaRepository.existsByRole(role);
     }
 
     @Override

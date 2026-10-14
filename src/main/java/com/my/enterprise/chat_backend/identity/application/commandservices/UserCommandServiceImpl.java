@@ -5,6 +5,7 @@ import com.my.enterprise.chat_backend.identity.application.outboundservices.port
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.RefreshTokenRepository;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.UserRepository;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.EmailAlreadyExistsException;
+import com.my.enterprise.chat_backend.identity.domain.exceptions.ForbiddenException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidCredentialsException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UsernameAlreadyExistsException;
@@ -12,6 +13,8 @@ import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.DemoteUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.commands.PromoteUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
@@ -21,6 +24,8 @@ import com.my.enterprise.chat_backend.identity.domain.services.PasswordPolicy;
 import com.my.enterprise.chat_backend.identity.domain.services.UserCommandService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 /**
  * Implementación de {@link UserCommandService} (agregado User).
@@ -142,5 +147,61 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         user.activate(clock.now());
         userRepository.save(user);
+    }
+
+    /**
+     * Promueve una cuenta a ADMIN.
+     * Reglas: el solicitante debe existir, estar activo y ser admin;
+     * nadie puede cambiar su propio rol (evita autobloqueos).
+     */
+    @Override
+    @Transactional
+    public void promote(PromoteUserCommand command) {
+        User admin = requireAdmin(command.requestedBy());
+        User target = userRepository.findById(command.targetUserId())
+                .orElseThrow(() -> new UserNotFoundException(command.targetUserId()));
+        ensureNotSelf(admin, target);
+
+        target.promoteToAdmin(clock.now());
+        userRepository.save(target);
+    }
+
+    /**
+     * Degrada una cuenta ADMIN a USER común.
+     * Mismas reglas que {@link #promote(PromoteUserCommand)}.
+     */
+    @Override
+    @Transactional
+    public void demote(DemoteUserCommand command) {
+        User admin = requireAdmin(command.requestedBy());
+        User target = userRepository.findById(command.targetUserId())
+                .orElseThrow(() -> new UserNotFoundException(command.targetUserId()));
+        ensureNotSelf(admin, target);
+
+        target.demoteToUser(clock.now());
+        userRepository.save(target);
+    }
+
+    /**
+     * Carga al solicitante y verifica que pueda administrar roles.
+     */
+    private User requireAdmin(UUID requestedBy) {
+        User admin = userRepository.findById(requestedBy)
+                .orElseThrow(() -> new UserNotFoundException(requestedBy));
+        admin.ensureCanAuthenticate();
+        if (!admin.isAdmin()) {
+            throw new ForbiddenException("Se requieren privilegios de administrador");
+        }
+        return admin;
+    }
+
+    /**
+     * Nadie puede cambiar su propio rol: evita que un admin se degrade
+     * a sí mismo por error y deje al sistema sin administradores.
+     */
+    private void ensureNotSelf(User admin, User target) {
+        if (admin.getId().equals(target.getId())) {
+            throw new ForbiddenException("No puedes cambiar tu propio rol");
+        }
     }
 }

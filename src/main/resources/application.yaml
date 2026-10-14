@@ -60,6 +60,10 @@ security:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  # Bootstrap del primer admin: email de la cuenta a promover si aún
+  # no existe ningún ADMIN. Vacío = desactivado. Variable: INITIAL_ADMIN_EMAIL.
+  identity:
+    initial-admin-email: ${INITIAL_ADMIN_EMAIL:purplepanda120615@gmail.com}
 
 # --------------------------------------------------------------------
 # OpenAPI / Swagger UI (springdoc). Consola en /swagger-ui.html y

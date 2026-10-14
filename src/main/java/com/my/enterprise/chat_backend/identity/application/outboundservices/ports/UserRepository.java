@@ -2,6 +2,7 @@ package com.my.enterprise.chat_backend.identity.application.outboundservices.por
 
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
+import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.UserRole;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Username;
 
 import java.util.Optional;
@@ -25,6 +26,9 @@ public interface UserRepository {
     boolean existsByUsername(Username username);
 
     boolean existsByEmail(Email email);
+
+    /** Indica si existe al menos una cuenta con ese rol. */
+    boolean existsByRole(UserRole role);
 
     /**
      * Guarda (inserta o actualiza) el agregado.

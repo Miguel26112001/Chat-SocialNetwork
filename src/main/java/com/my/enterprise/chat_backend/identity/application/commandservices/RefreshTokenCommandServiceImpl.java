@@ -26,10 +26,10 @@ import java.util.Optional;
 /**
  * Implementación de {@link RefreshTokenCommandService}
  * (agregado RefreshToken).
- *
+ * <p>
  * El ciclo de vida de las sesiones: login emite, logout revoca y
  * refreshSession rota.
- *
+ * <p>
  * Reglas transversales:
  *  - los errores de autenticación nunca distinguen "usuario
  *    inexistente" de "contraseña incorrecta" (anti user-enumeration);

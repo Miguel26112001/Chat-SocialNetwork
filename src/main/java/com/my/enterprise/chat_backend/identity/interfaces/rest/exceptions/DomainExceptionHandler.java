@@ -12,6 +12,8 @@ import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundExc
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UsernameAlreadyExistsException;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -103,6 +105,30 @@ public class DomainExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex, request);
     }
 
+    /**
+     * Violación de un constraint de BD (p. ej. dos registros simultáneos
+     * que superan el chequeo previo de unicidad y chocan en el UNIQUE).
+     * Se traduce a 409 con el mismo mensaje que el caso secuencial, para
+     * que el cliente no distinga la condición de carrera (ni vea un 500).
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> dataIntegrityViolation(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+        String constraint = findConstraintName(ex);
+        String message;
+        if (constraint != null && constraint.contains("username")) {
+            message = "Ya existe un usuario con ese nombre";
+        } else if (constraint != null && constraint.contains("email")) {
+            message = "Ya existe una cuenta con ese correo";
+        } else {
+            message = "La operación viola una restricción de unicidad";
+        }
+        ErrorResponse body = ErrorResponse.of(
+                HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(),
+                message, request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     /** Excepciones desconocidas: 500 sin detalles internos. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> unhandled(
@@ -119,5 +145,22 @@ public class DomainExceptionHandler {
         ErrorResponse body = ErrorResponse.of(
                 status.value(), status.getReasonPhrase(), ex.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(body);
+    }
+
+    /**
+     * Extrae el nombre del constraint violado recorriendo la cadena de
+     * causas hasta el {@code ConstraintViolationException} de Hibernate.
+     * Devuelve {@code null} si no se puede determinar.
+     */
+    private String findConstraintName(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof ConstraintViolationException violation
+                    && violation.getConstraintName() != null) {
+                return violation.getConstraintName();
+            }
+            current = current.getCause();
+        }
+        return null;
     }
 }

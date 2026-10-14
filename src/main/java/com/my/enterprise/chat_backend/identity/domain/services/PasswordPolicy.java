@@ -1,6 +1,7 @@
 package com.my.enterprise.chat_backend.identity.domain.services;
 
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidPasswordException;
+import org.springframework.stereotype.Component;
 
 /**
  * Servicio de dominio: política de contraseñas.
@@ -15,6 +16,7 @@ import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidPassword
  *  - al menos una letra y un dígito;
  *  - sin espacios al inicio o al final.
  */
+@Component
 public class PasswordPolicy {
 
     public static final int MIN_LENGTH = 8;

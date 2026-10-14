@@ -42,3 +42,13 @@ spring:
 # --------------------------------------------------------------------
 server:
   port: ${SERVER_PORT:8081}
+
+# --------------------------------------------------------------------
+# JWT (access tokens). El refresh token NO vive aquí: se gestiona
+# en la tabla identity.refresh_tokens.
+# En producción definir JWT_SECRET como variable de entorno.
+# --------------------------------------------------------------------
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-cambiar-en-produccion-0123456789abcdef0123456789abcdef}
+    access-token-ttl: 15m

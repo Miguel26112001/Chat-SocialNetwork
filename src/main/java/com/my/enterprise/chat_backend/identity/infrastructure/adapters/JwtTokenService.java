@@ -26,11 +26,11 @@ import java.util.UUID;
 /**
  * Adaptador del puerto {@code TokenService}: JWT firmados con HS256
  * (Nimbus JOSE JWT, ya presente vía spring-boot-starter-oauth2-resource-server).
- *
+ * <p>
  * Configuración (application.yaml):
  *  - security.jwt.secret: clave simétrica (mínimo 256 bits);
  *  - security.jwt.access-token-ttl: duración del access token.
- *
+ * <p>
  * El access token es de corta duración; la seguridad a largo plazo la
  * aporta el refresh token (rotación + revocación en BD).
  */

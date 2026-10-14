@@ -16,17 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Bootstrap del primer administrador.
- *
+ * <p>
  * Resuelve el problema del huevo y la gallina: sin admins no hay
  * quien promueva, así que en el arranque —solo si no existe NINGÚN
  * admin— se promueve la cuenta indicada en
  * {@code app.identity.initial-admin-email}.
- *
+ * <p>
  * Se activa únicamente con la propiedad definida
  * ({@code INITIAL_ADMIN_EMAIL}); con valor vacío no hace nada.
  * Es idempotente y de un solo uso: en cuanto existe un admin,
  * nunca vuelve a actuar.
- *
+ * <p>
  * Actúa como actor del sistema (no como petición de usuario), por eso
  * opera directamente sobre el agregado vía puertos, sin pasar por
  * los command services (que exigen un solicitante admin).

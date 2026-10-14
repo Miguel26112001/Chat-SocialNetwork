@@ -8,7 +8,7 @@ import java.time.Instant;
 /**
  * Mapeado JPA base de las entidades (objetos con identidad) que NO
  * son agregados raíz, p. ej. hijos de un agregado.
- *
+ * <p>
  * Proporciona los mismos campos de auditoría que
  * {@code AuditableAbstractAggregateRoot} para mantener una
  * única convención en todo el sistema.

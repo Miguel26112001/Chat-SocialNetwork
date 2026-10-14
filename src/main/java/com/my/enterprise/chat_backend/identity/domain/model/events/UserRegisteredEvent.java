@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Evento de dominio: una cuenta fue creada.
- *
+ * <p>
  * Es el más importante del sistema: otros bounded contextos lo
  * consumen para crear su propia parte del usuario, p. ej. User Profile
  * crea su perfil (display_name = username por defecto).

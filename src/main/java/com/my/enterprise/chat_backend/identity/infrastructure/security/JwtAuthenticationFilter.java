@@ -18,13 +18,13 @@ import java.util.List;
 
 /**
  * Filtro de autenticación JWT.
- *
+ * <p>
  * Lee la cabecera {@code Authorization: Bearer <token>}, valida el
  * token con el puerto {@link TokenService} y, si es válido, deja en
  * el SecurityContext al usuario autenticado (el id como principal)
  * con su authority ({@code ROLE_USER} o {@code ROLE_ADMIN} según el
  * claim {@code role}).
- *
+ * <p>
  * Un token inválido NO produce un 401 aquí: simplemente no autentica
  * y la petición sigue su camino; la decisión de autorización la toma
  * el SecurityFilterChain (entry point 401 para las rutas protegidas).

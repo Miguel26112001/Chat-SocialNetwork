@@ -27,15 +27,15 @@ import java.util.UUID;
 
 /**
  * Agregado raíz del contexto Identity.
- *
+ * <p>
  * Responsabilidad: representar una cuenta de usuario —quién es y cómo
  * se autentica—. NO contiene datos de presentación (displayName, bio,
  * avatar, is_private): esos viven en el bounded context User Profile.
- *
+ * <p>
  * Mapeado JPA directo: la tabla identity.users de la migración V1.
  * La unicidad de username/email también se declara aquí como
  * {@code @UniqueConstraint} (doble defensa: capa de dominio + BD).
- *
+ * <p>
  * Invariantes que este agregado protege:
  *  - el username y el correo cumplen su formato (garantizado por los VOs);
  *  - toda cuenta nace como USER; el rol solo cambia por promoción/degradación explícita;

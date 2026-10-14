@@ -10,7 +10,7 @@ import java.util.HexFormat;
 
 /**
  * Adaptador del puerto {@code TokenHasher}: SHA-256.
- *
+ * <p>
  * El refresh token ya tiene 256 bits de entropía propia, así que no
  * requiere salt: el hash es determinista y permite buscar el token
  * por su hash en la tabla identity.refresh_tokens.

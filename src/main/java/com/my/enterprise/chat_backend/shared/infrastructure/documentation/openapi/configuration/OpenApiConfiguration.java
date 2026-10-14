@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuración global de OpenAPI / Swagger UI.
- *
+ * <p>
  * - El esquema {@code bearerAuth} habilita el botón "Authorize" en
  *   Swagger UI: pega el access token JWT y se envía como
  *   {@code Authorization: Bearer <token>} en los endpoints protegidos.

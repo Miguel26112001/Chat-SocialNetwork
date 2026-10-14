@@ -16,13 +16,13 @@ import java.util.UUID;
 
 /**
  * Agregado raíz del contexto Identity.
- *
+ * <p>
  * Responsabilidad: una sesión persistente de un dispositivo.
  * Permite renovar JWTs, cerrar sesiones y gestionar múltiples
  * dispositivos (especificación: tabla refresh_tokens).
- *
+ * <p>
  * Mapeado JPA directo: la tabla identity.refresh_tokens de la V1.
- *
+ * <p>
  * REGLA DE ORO: jamás se almacena el refresh token en texto plano,
  * solo su HASH irreversible ({@code token_hash}); el hash se genera
  * en infraestructura mediante el puerto {@code TokenHasher}.

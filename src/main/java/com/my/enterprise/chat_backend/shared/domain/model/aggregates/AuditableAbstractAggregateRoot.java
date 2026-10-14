@@ -9,7 +9,7 @@ import java.time.Instant;
 
 /**
  * Mapeado JPA base de todos los agregados raíz del sistema.
- *
+ * <p>
  * Combina:
  *  - el mecanismo de eventos de dominio de Spring Data
  *    ({@link AbstractAggregateRoot}), que permite hacer
@@ -17,14 +17,14 @@ import java.time.Instant;
  *    {@code publishDomainEvents()} al hacer flush/save;
  *  - los campos de auditoría comunes (created_at / updated_at)
  *    que comparten todas las tablas de la especificación.
- *
+ * <p>
  * Los campos de Spring Data {@code AbstractAggregateRoot} no se
  * persisten: su superclase no es entidad ni MappedSuperclass, y la
  * colección de eventos es transient.
- *
+ * <p>
  * Parámetro de tipo: la propia subclase, para encadenar tipos
  * (patrón CRTP), p. ej. {@code class User extends AuditableAbstractAggregateRoot<User>}.
- *
+ * <p>
  * @param <S> el agregado concreto que extiende esta clase
  */
 @Getter

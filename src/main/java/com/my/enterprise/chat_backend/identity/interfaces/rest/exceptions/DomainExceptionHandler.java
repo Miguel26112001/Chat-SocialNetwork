@@ -1,6 +1,7 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.exceptions;
 
 import com.my.enterprise.chat_backend.identity.domain.exceptions.DomainException;
+import com.my.enterprise.chat_backend.identity.domain.exceptions.AccountLockedException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.EmailAlreadyExistsException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.ForbiddenException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InactiveUserException;
@@ -46,6 +47,12 @@ public class DomainExceptionHandler {
     public ResponseEntity<ErrorResponse> forbidden(
             ForbiddenException ex, HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, ex, request);
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<ErrorResponse> accountLocked(
+            AccountLockedException ex, HttpServletRequest request) {
+        return build(HttpStatus.LOCKED, ex, request);
     }
 
     @ExceptionHandler(UserNotFoundException.class)

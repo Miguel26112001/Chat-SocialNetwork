@@ -17,6 +17,7 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.LogoutComma
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RefreshSessionCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Username;
+import com.my.enterprise.chat_backend.identity.domain.services.AccountLockoutPolicy;
 import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenCommandService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,7 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordHasher passwordHasher;
     private final TokenHasher tokenHasher;
+    private final AccountLockoutPolicy lockoutPolicy;
     private final Clock clock;
     private final TokenPairIssuer tokenPairIssuer;
 
@@ -50,12 +52,14 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
                                           RefreshTokenRepository refreshTokenRepository,
                                           PasswordHasher passwordHasher,
                                           TokenHasher tokenHasher,
+                                          AccountLockoutPolicy lockoutPolicy,
                                           Clock clock,
                                           TokenService tokenService) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordHasher = passwordHasher;
         this.tokenHasher = tokenHasher;
+        this.lockoutPolicy = lockoutPolicy;
         this.clock = clock;
         this.tokenPairIssuer = new TokenPairIssuer(tokenService, tokenHasher, refreshTokenRepository, clock);
     }
@@ -63,16 +67,27 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
     /**
      * Inicia sesión con username o email.
      * Orquestación: localizar al usuario → descartar cuentas
-     * desactivadas ANTES de comparar la contraseña → verificar la
-     * contraseña con el puerto → emitir el par de tokens.
+     * desactivadas o bloqueadas ANTES de comparar la contraseña →
+     * verificar la contraseña con el puerto → en fallo, registrar el
+     * intento (puede bloquear); en éxito, reiniciar el contador →
+     * emitir el par de tokens.
+     *
+     * {@code noRollbackFor}: el contador de intentos debe confirmarse
+     * aunque el login falle con 401; sin esto, la excepción revertiría
+     * su propio registro y el bloqueo jamás se activaría.
      */
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = InvalidCredentialsException.class)
     public AuthTokens login(LoginCommand command) {
         User user = findByIdentifier(command.usernameOrEmail());
-        user.ensureCanAuthenticate();
+        user.ensureCanAuthenticate(clock.now());
         if (!passwordHasher.matches(command.rawPassword(), user.getPasswordHash())) {
+            user.recordFailedLogin(clock.now(), lockoutPolicy.maxAttempts(), lockoutPolicy.lockDuration());
+            userRepository.save(user);
             throw new InvalidCredentialsException();
+        }
+        if (user.resetFailedLogins(clock.now())) {
+            userRepository.save(user);
         }
         return tokenPairIssuer.issue(user);
     }
@@ -109,7 +124,7 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
 
         User user = userRepository.findById(token.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(token.getUserId()));
-        user.ensureCanAuthenticate();
+        user.ensureCanAuthenticate(clock.now());
 
         token.revoke(clock.now());
         refreshTokenRepository.save(token);

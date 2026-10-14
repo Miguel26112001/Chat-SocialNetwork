@@ -103,7 +103,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     public void changePassword(ChangePasswordCommand command) {
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new UserNotFoundException(command.userId()));
-        user.ensureCanAuthenticate();
+        user.ensureCanAuthenticate(clock.now());
 
         if (!passwordHasher.matches(command.currentRawPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
@@ -188,7 +188,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     private User requireAdmin(UUID requestedBy) {
         User admin = userRepository.findById(requestedBy)
                 .orElseThrow(() -> new UserNotFoundException(requestedBy));
-        admin.ensureCanAuthenticate();
+        admin.ensureCanAuthenticate(clock.now());
         if (!admin.isAdmin()) {
             throw new ForbiddenException("Se requieren privilegios de administrador");
         }

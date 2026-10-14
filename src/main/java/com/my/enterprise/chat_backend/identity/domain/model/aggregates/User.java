@@ -1,5 +1,6 @@
 package com.my.enterprise.chat_backend.identity.domain.model.aggregates;
 
+import com.my.enterprise.chat_backend.identity.domain.exceptions.AccountLockedException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InactiveUserException;
 import com.my.enterprise.chat_backend.identity.domain.model.events.PasswordChangedEvent;
 import com.my.enterprise.chat_backend.identity.domain.model.events.UserDeactivatedEvent;
@@ -22,6 +23,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -74,6 +76,12 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    private int failedLoginAttempts;
+
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private UserRole role;
@@ -88,6 +96,8 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.email = email;
         this.passwordHash = passwordHash;
         this.active = true;
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
         this.role = UserRole.USER;
         markCreated(now);
     }
@@ -170,11 +180,41 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     /**
      * Guardia de autenticación: la capa de aplicación la invoca antes
      * de verificar la contraseña para descartar cuentas desactivadas
-     * sin revelar que la contraseña era correcta.
+     * o bloqueadas sin revelar que la contraseña era correcta.
      */
-    public void ensureCanAuthenticate() {
+    public void ensureCanAuthenticate(Instant now) {
         if (!this.active) {
             throw new InactiveUserException(username.value());
         }
+        if (lockedUntil != null && now.isBefore(lockedUntil)) {
+            throw new AccountLockedException(lockedUntil);
+        }
+    }
+
+    /**
+     * Registra un intento fallido de login. Al alcanzar el máximo, la
+     * cuenta queda bloqueada durante la duración indicada.
+     */
+    public void recordFailedLogin(Instant now, int maxAttempts, Duration lockDuration) {
+        this.failedLoginAttempts += 1;
+        if (this.failedLoginAttempts >= maxAttempts) {
+            this.lockedUntil = now.plus(lockDuration);
+        }
+        touch(now);
+    }
+
+    /**
+     * Reinicia el contador tras un login exitoso.
+     * Devuelve {@code true} si cambió algo (para evitar escrituras
+     * innecesarias en la capa de aplicación).
+     */
+    public boolean resetFailedLogins(Instant now) {
+        if (failedLoginAttempts == 0 && lockedUntil == null) {
+            return false;
+        }
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+        touch(now);
+        return true;
     }
 }

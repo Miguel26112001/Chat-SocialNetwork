@@ -226,6 +226,7 @@ Una cuenta desactivada no puede hacer login (**401**).
 | 403    | Cuenta desactivada (`is_active = false`)                    |
 | 404    | Usuario no encontrado                                       |
 | 409    | Username o email ya registrados                             |
+| 423    | Cuenta bloqueada temporalmente (5 fallos de login, 15 min)  |
 | 500    | Error interno (sin detalles al cliente)                     |
 
 > Por seguridad, el login **no distingue** "usuario inexistente" de

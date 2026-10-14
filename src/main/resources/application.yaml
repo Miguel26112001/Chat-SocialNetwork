@@ -4,21 +4,41 @@ spring:
 
   # ------------------------------------------------------------------
   # Conexión a PostgreSQL (sobreescribible por variables de entorno)
+  # DB_URL completo tiene prioridad; si no, se arma con DB_HOST,
+  # DB_PORT y DB_NAME.
   # ------------------------------------------------------------------
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/chat_social}
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:chat_social}}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:1234}
 
   # ------------------------------------------------------------------
-  # Flyway gestiona el esquema. Hibérnate solo válida, nunca crea
+  # Flyway gestiona el esquema. Hibernate solo valida, nunca crea
   # tablas (las migraciones son la única fuente de verdad).
+  # Cada bounded context es un esquema PostgreSQL aislado; los
+  # esquemas se crean automáticamente en el primer arranque.
+  # El histórico de Flyway queda en "public" (primero de la lista).
   # ------------------------------------------------------------------
   flyway:
     enabled: true
     locations: classpath:db/migration
+    create-schemas: true
+    schemas:
+      - public
+      - identity
+      - profiles
+      - social
+      - content
+      - engagement
+      - notifications
 
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+
+# --------------------------------------------------------------------
+# Puerto del servidor (sobreescribible por variable de entorno)
+# --------------------------------------------------------------------
+server:
+  port: ${SERVER_PORT:8081}

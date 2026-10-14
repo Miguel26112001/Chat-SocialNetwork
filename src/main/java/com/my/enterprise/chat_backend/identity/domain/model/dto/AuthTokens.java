@@ -1,4 +1,4 @@
-package com.my.enterprise.chat_backend.identity.domain.model;
+package com.my.enterprise.chat_backend.identity.domain.model.dto;
 
 import java.time.Instant;
 

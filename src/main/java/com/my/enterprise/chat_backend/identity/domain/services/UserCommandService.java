@@ -1,10 +1,10 @@
 package com.my.enterprise.chat_backend.identity.domain.services;
 
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 
 /**
  * Contrato de los comandos (lado WRITE, CQRS) del agregado User.
@@ -19,8 +19,8 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUse
  */
 public interface UserCommandService {
 
-    /** Registra una nueva cuenta. Devuelve el agregado creado. */
-    User register(RegisterUserCommand command);
+    /** Registra una nueva cuenta. Devuelve su proyección (nunca el agregado). */
+    UserDto register(RegisterUserCommand command);
 
     /** Cambia la contraseña (requiere la contraseña actual). */
     void changePassword(ChangePasswordCommand command);

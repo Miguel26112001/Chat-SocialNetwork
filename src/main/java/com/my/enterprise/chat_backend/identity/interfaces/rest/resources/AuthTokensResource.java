@@ -1,6 +1,5 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.resources;
 
-import com.my.enterprise.chat_backend.identity.domain.model.AuthTokens;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -24,12 +23,4 @@ public record AuthTokensResource(
 
         @Schema(description = "Expiración del refresh token")
         Instant refreshTokenExpiresAt) {
-
-    public static AuthTokensResource from(AuthTokens tokens) {
-        return new AuthTokensResource(
-                tokens.accessToken(),
-                tokens.refreshToken(),
-                tokens.accessTokenExpiresAt(),
-                tokens.refreshTokenExpiresAt());
-    }
 }

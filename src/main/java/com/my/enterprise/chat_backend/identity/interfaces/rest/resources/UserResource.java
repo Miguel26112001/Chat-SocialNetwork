@@ -1,6 +1,5 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.resources;
 
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -31,14 +30,4 @@ public record UserResource(
 
         @Schema(description = "Fecha de última modificación")
         Instant updatedAt) {
-
-    public static UserResource from(User user) {
-        return new UserResource(
-                user.getId(),
-                user.getUsername().value(),
-                user.getEmail().value(),
-                user.isActive(),
-                user.getCreatedAt(),
-                user.getUpdatedAt());
-    }
 }

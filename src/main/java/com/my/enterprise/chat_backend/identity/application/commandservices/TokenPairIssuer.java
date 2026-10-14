@@ -4,7 +4,7 @@ import com.my.enterprise.chat_backend.identity.application.outboundservices.port
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.RefreshTokenRepository;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.TokenHasher;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.TokenService;
-import com.my.enterprise.chat_backend.identity.domain.model.AuthTokens;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.AuthTokens;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.RefreshToken;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 

@@ -1,6 +1,5 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.resources;
 
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.RefreshToken;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -21,8 +20,4 @@ public record SessionResource(
 
         @Schema(description = "Fecha de expiración de la sesión")
         Instant expiresAt) {
-
-    public static SessionResource from(RefreshToken token) {
-        return new SessionResource(token.getId(), token.getCreatedAt(), token.getExpiresAt());
-    }
 }

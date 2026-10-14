@@ -8,7 +8,7 @@ import com.my.enterprise.chat_backend.identity.application.outboundservices.port
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.UserRepository;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.InvalidCredentialsException;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundException;
-import com.my.enterprise.chat_backend.identity.domain.model.AuthTokens;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.AuthTokens;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.RefreshToken;
 import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.LoginCommand;

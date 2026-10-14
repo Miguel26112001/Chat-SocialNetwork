@@ -2,7 +2,7 @@ package com.my.enterprise.chat_backend.identity.application.queryservices;
 
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.UserRepository;
 import com.my.enterprise.chat_backend.identity.domain.exceptions.UserNotFoundException;
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.User;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.FindUserByEmailQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetMyAccountQuery;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetUserByIdQuery;
@@ -31,32 +31,32 @@ public class UserQueryServiceImpl implements UserQueryService {
     /** Obtiene una cuenta por id. */
     @Override
     @Transactional(readOnly = true)
-    public User getUserById(GetUserByIdQuery query) {
-        return userRepository.findById(query.userId())
-                .orElseThrow(() -> new UserNotFoundException(query.userId()));
+    public UserDto getUserById(GetUserByIdQuery query) {
+        return UserDto.from(userRepository.findById(query.userId())
+                .orElseThrow(() -> new UserNotFoundException(query.userId())));
     }
 
     /** Obtiene una cuenta por username exacto. */
     @Override
     @Transactional(readOnly = true)
-    public User getUserByUsername(GetUserByUsernameQuery query) {
-        return userRepository.findByUsername(new Username(query.username()))
-                .orElseThrow(() -> new UserNotFoundException(query.username()));
+    public UserDto getUserByUsername(GetUserByUsernameQuery query) {
+        return UserDto.from(userRepository.findByUsername(new Username(query.username()))
+                .orElseThrow(() -> new UserNotFoundException(query.username())));
     }
 
     /** Obtiene una cuenta por correo exacto (el VO Email ya normaliza a minúsculas). */
     @Override
     @Transactional(readOnly = true)
-    public User findUserByEmail(FindUserByEmailQuery query) {
-        return userRepository.findByEmail(new Email(query.email()))
-                .orElseThrow(() -> new UserNotFoundException(query.email()));
+    public UserDto findUserByEmail(FindUserByEmailQuery query) {
+        return UserDto.from(userRepository.findByEmail(new Email(query.email()))
+                .orElseThrow(() -> new UserNotFoundException(query.email())));
     }
 
     /** Obtiene la cuenta propia del usuario autenticado. */
     @Override
     @Transactional(readOnly = true)
-    public User getMyAccount(GetMyAccountQuery query) {
-        return userRepository.findById(query.userId())
-                .orElseThrow(() -> new UserNotFoundException(query.userId()));
+    public UserDto getMyAccount(GetMyAccountQuery query) {
+        return UserDto.from(userRepository.findById(query.userId())
+                .orElseThrow(() -> new UserNotFoundException(query.userId())));
     }
 }

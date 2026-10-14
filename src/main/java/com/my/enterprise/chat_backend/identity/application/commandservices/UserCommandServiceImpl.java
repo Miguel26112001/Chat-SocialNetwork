@@ -14,6 +14,7 @@ import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUse
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.RegisterUserCommand;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.UserDto;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Email;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.PasswordHash;
 import com.my.enterprise.chat_backend.identity.domain.model.valueobjects.Username;
@@ -67,7 +68,7 @@ public class UserCommandServiceImpl implements UserCommandService {
      */
     @Override
     @Transactional
-    public User register(RegisterUserCommand command) {
+    public UserDto register(RegisterUserCommand command) {
         Username username = new Username(command.username());
         Email email = new Email(command.email());
 
@@ -84,7 +85,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         User user = User.register(username, email, passwordHash, clock.now());
         userRepository.save(user);
 
-        return user;
+        return UserDto.from(user);
     }
 
     /**

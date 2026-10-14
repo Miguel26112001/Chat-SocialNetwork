@@ -1,6 +1,7 @@
 package com.my.enterprise.chat_backend.identity.interfaces.rest.controllers;
 
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.UserResource;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.transform.UserTransform;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ActivateUserCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.ChangePasswordCommand;
 import com.my.enterprise.chat_backend.identity.domain.model.commands.DeactivateUserCommand;
@@ -59,7 +60,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResource> me() {
         UUID userId = UserPrincipal.current();
-        return ResponseEntity.ok(UserResource.from(userQueryService.getMyAccount(new GetMyAccountQuery(userId))));
+        return ResponseEntity.ok(UserTransform.toResource(
+                userQueryService.getMyAccount(new GetMyAccountQuery(userId))));
     }
 
     @Operation(summary = "Obtener una cuenta por id")
@@ -73,7 +75,8 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResource> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(UserResource.from(userQueryService.getUserById(new GetUserByIdQuery(id))));
+        return ResponseEntity.ok(UserTransform.toResource(
+                userQueryService.getUserById(new GetUserByIdQuery(id))));
     }
 
     @Operation(summary = "Obtener una cuenta por username exacto")
@@ -87,7 +90,8 @@ public class UserController {
     })
     @GetMapping("/username/{username}")
     public ResponseEntity<UserResource> getByUsername(@PathVariable String username) {
-        return ResponseEntity.ok(UserResource.from(userQueryService.getUserByUsername(new GetUserByUsernameQuery(username))));
+        return ResponseEntity.ok(UserTransform.toResource(
+                userQueryService.getUserByUsername(new GetUserByUsernameQuery(username))));
     }
 
     @Operation(summary = "Obtener una cuenta por correo exacto")
@@ -103,7 +107,8 @@ public class UserController {
     })
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResource> getByEmail(@PathVariable String email) {
-        return ResponseEntity.ok(UserResource.from(userQueryService.findUserByEmail(new FindUserByEmailQuery(email))));
+        return ResponseEntity.ok(UserTransform.toResource(
+                userQueryService.findUserByEmail(new FindUserByEmailQuery(email))));
     }
 
     @Operation(summary = "Cambiar mi contraseña",

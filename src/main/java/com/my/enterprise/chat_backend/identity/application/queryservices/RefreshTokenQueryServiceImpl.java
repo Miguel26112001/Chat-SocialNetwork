@@ -2,7 +2,7 @@ package com.my.enterprise.chat_backend.identity.application.queryservices;
 
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.Clock;
 import com.my.enterprise.chat_backend.identity.application.outboundservices.ports.RefreshTokenRepository;
-import com.my.enterprise.chat_backend.identity.domain.model.aggregates.RefreshToken;
+import com.my.enterprise.chat_backend.identity.domain.model.dto.SessionDto;
 import com.my.enterprise.chat_backend.identity.domain.model.queries.GetActiveSessionsQuery;
 import com.my.enterprise.chat_backend.identity.domain.services.RefreshTokenQueryService;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,9 @@ public class RefreshTokenQueryServiceImpl implements RefreshTokenQueryService {
     /** Sesiones vigentes (no revocadas y no expiradas) de un usuario. */
     @Override
     @Transactional(readOnly = true)
-    public List<RefreshToken> findActiveSessions(GetActiveSessionsQuery query) {
-        return refreshTokenRepository.findActiveByUserId(query.userId(), clock.now());
+    public List<SessionDto> findActiveSessions(GetActiveSessionsQuery query) {
+        return refreshTokenRepository.findActiveByUserId(query.userId(), clock.now()).stream()
+                .map(SessionDto::from)
+                .toList();
     }
 }

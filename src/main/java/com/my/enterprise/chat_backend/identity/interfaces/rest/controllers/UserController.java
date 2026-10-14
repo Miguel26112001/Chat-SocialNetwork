@@ -10,6 +10,15 @@ import com.my.enterprise.chat_backend.identity.domain.services.UserCommandServic
 import com.my.enterprise.chat_backend.identity.domain.services.UserQueryService;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.UserPrincipal;
 import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.ChangePasswordRequest;
+import com.my.enterprise.chat_backend.identity.interfaces.rest.resources.ErrorResponse;
+import com.my.enterprise.chat_backend.shared.infrastructure.documentation.openapi.configuration.OpenApiConfiguration;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,10 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-/**
- * REST API de cuentas del contexto Identity.
- * Todos los endpoints requieren autenticación JWT.
- */
+@Tag(name = "Users", description = "Consulta y gestión de cuentas (Identity). Todos los endpoints requieren JWT.")
+@SecurityRequirement(name = OpenApiConfiguration.BEARER_AUTH)
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -38,26 +45,59 @@ public class UserController {
         this.userCommandService = userCommandService;
     }
 
-    /** El perfil del propio usuario autenticado. */
+    @Operation(summary = "Obtener mi cuenta", description = "Devuelve la cuenta del usuario autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/me")
     public UserDto me() {
         UUID userId = UserPrincipal.current();
         return UserDto.from(userQueryService.getUserById(new GetUserByIdQuery(userId)));
     }
 
-    /** Perfil público de un usuario por id. */
+    @Operation(summary = "Obtener una cuenta por id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{id}")
     public UserDto getById(@PathVariable UUID id) {
         return UserDto.from(userQueryService.getUserById(new GetUserByIdQuery(id)));
     }
 
-    /** Perfil público de un usuario por username exacto. */
+    @Operation(summary = "Obtener una cuenta por username exacto")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cuenta encontrada",
+                    content = @Content(schema = @Schema(implementation = UserDto.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/username/{username}")
     public UserDto getByUsername(@PathVariable String username) {
         return UserDto.from(userQueryService.getUserByUsername(new GetUserByUsernameQuery(username)));
     }
 
-    /** Cambio de contraseña del propio usuario. */
+    @Operation(summary = "Cambiar mi contraseña",
+            description = "Requiere la contraseña actual. Cambiarla no revoca las demás sesiones "
+                    + "(las revoca el consumidor del evento PasswordChangedEvent cuando exista).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Contraseña cambiada"),
+            @ApiResponse(responseCode = "400", description = "Nueva contraseña inválida",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado o contraseña actual incorrecta",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/me/password")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         UUID userId = UserPrincipal.current();
@@ -66,14 +106,29 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Desactiva una cuenta (soft delete). */
+    @Operation(summary = "Desactivar una cuenta",
+            description = "Soft delete (is_active = false) y revocación de todas sus sesiones.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta desactivada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivate(@PathVariable UUID id) {
         userCommandService.deactivate(new DeactivateUserCommand(id));
         return ResponseEntity.noContent().build();
     }
 
-    /** Reactiva una cuenta desactivada. */
+    @Operation(summary = "Reactivar una cuenta desactivada")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Cuenta reactivada"),
+            @ApiResponse(responseCode = "401", description = "No autenticado o token inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cuenta no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/{id}/activate")
     public ResponseEntity<Void> activate(@PathVariable UUID id) {
         userCommandService.activate(new ActivateUserCommand(id));

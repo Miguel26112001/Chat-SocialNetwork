@@ -36,7 +36,11 @@ public class SecurityConfiguration {
     private static final String[] PUBLIC_PATHS = {
             "/api/v1/auth/register",
             "/api/v1/auth/login",
-            "/api/v1/auth/refresh"
+            "/api/v1/auth/refresh",
+            // OpenAPI / Swagger UI
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;

@@ -52,3 +52,15 @@ security:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-cambiar-en-produccion-0123456789abcdef0123456789abcdef}
     access-token-ttl: 15m
+
+# --------------------------------------------------------------------
+# OpenAPI / Swagger UI (springdoc). Consola en /swagger-ui.html y
+# documento JSON en /v3/api-docs.
+# --------------------------------------------------------------------
+springdoc:
+  swagger-ui:
+    enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    enabled: true

@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -105,6 +106,13 @@ public class DomainExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    /** Cuerpo JSON malformado o tipo incorrecto: 400 (no es un 500). */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> notReadable(
+            HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ex, request);
+    }
+
     /** Cualquier otra excepción de dominio no mapeada: 400 genérico. */
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> domainException(
@@ -139,7 +147,7 @@ public class DomainExceptionHandler {
     /** Excepciones desconocidas: 500 sin detalles internos. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> unhandled(
-            HttpServletRequest request) {
+            Exception ex, HttpServletRequest request) {
         ErrorResponse body = ErrorResponse.of(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),

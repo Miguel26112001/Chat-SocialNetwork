@@ -42,6 +42,9 @@ spring:
 # --------------------------------------------------------------------
 server:
   port: ${SERVER_PORT:8081}
+  # El gateway reenvía esquema/host (X-Forwarded-*): aceptarlos para
+  # que las URLs generadas (p. ej. Swagger) sean las públicas.
+  forward-headers-strategy: framework
 
 # --------------------------------------------------------------------
 # JWT (access tokens). El refresh token NO vive aquí: se gestiona
